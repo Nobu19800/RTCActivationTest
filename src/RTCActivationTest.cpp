@@ -1,0 +1,182 @@
+﻿// -*- C++ -*-
+// <rtc-template block="description">
+/*!
+ * @file  RTCActivationTest.cpp
+ * @brief RTC Activation Test
+ *
+ */
+// </rtc-template>
+
+#include "RTCActivationTest.h"
+#include <chrono>
+
+// Module specification
+// <rtc-template block="module_spec">
+#if RTM_MAJOR_VERSION >= 2
+static const char* const rtcactivationtest_spec[] =
+#else
+static const char* rtcactivationtest_spec[] =
+#endif
+  {
+    "implementation_id", "RTCActivationTest",
+    "type_name",         "RTCActivationTest",
+    "description",       "RTC Activation Test",
+    "version",           "1.0.0",
+    "vendor",            "AIST",
+    "category",          "Test",
+    "activity_type",     "PERIODIC",
+    "kind",              "DataFlowComponent",
+    "max_instance",      "1",
+    "language",          "C++",
+    "lang_type",         "compile",
+    // Configuration variables
+    "conf.default.sleeptime", "50",
+
+    // Widget
+    "conf.__widget__.sleeptime", "text",
+    // Constraints
+
+    "conf.__type__.sleeptime", "long",
+
+    ""
+  };
+// </rtc-template>
+
+/*!
+ * @brief constructor
+ * @param manager Maneger Object
+ */
+RTCActivationTest::RTCActivationTest(RTC::Manager* manager)
+    // <rtc-template block="initializer">
+  : RTC::DataFlowComponentBase(manager),
+    m_outOut("out", m_out)
+    // </rtc-template>
+{
+}
+
+/*!
+ * @brief destructor
+ */
+RTCActivationTest::~RTCActivationTest()
+{
+}
+
+
+
+RTC::ReturnCode_t RTCActivationTest::onInitialize()
+{
+  // Registration: InPort/OutPort/Service
+  // <rtc-template block="registration">
+  // Set InPort buffers
+  
+  // Set OutPort buffer
+  addOutPort("out", m_outOut);
+
+  
+  // Set service provider to Ports
+  
+  // Set service consumers to Ports
+  
+  // Set CORBA Service Ports
+  
+  // </rtc-template>
+
+  // <rtc-template block="bind_config">
+  // Bind variables and configuration variable
+  bindParameter("sleeptime", m_sleeptime, "50");
+  // </rtc-template>
+
+  m_outOut.addConnectorListener(RTC::ConnectorListenerType::ON_CONNECT,
+      new ConnListener(m_sleeptime));
+
+  
+  return RTC::RTC_OK;
+}
+
+/*
+RTC::ReturnCode_t RTCActivationTest::onFinalize()
+{
+  return RTC::RTC_OK;
+}
+*/
+
+
+//RTC::ReturnCode_t RTCActivationTest::onStartup(RTC::UniqueId /*ec_id*/)
+//{
+//  return RTC::RTC_OK;
+//}
+
+
+//RTC::ReturnCode_t RTCActivationTest::onShutdown(RTC::UniqueId /*ec_id*/)
+//{
+//  return RTC::RTC_OK;
+//}
+
+
+RTC::ReturnCode_t RTCActivationTest::onActivated(RTC::UniqueId /*ec_id*/)
+{
+  std::this_thread::sleep_for(std::chrono::seconds(m_sleeptime));
+  return RTC::RTC_OK;
+}
+
+
+//RTC::ReturnCode_t RTCActivationTest::onDeactivated(RTC::UniqueId /*ec_id*/)
+//{
+//  return RTC::RTC_OK;
+//}
+
+
+//RTC::ReturnCode_t RTCActivationTest::onExecute(RTC::UniqueId /*ec_id*/)
+//{
+//  return RTC::RTC_OK;
+//}
+
+
+//RTC::ReturnCode_t RTCActivationTest::onAborting(RTC::UniqueId /*ec_id*/)
+//{
+//  return RTC::RTC_OK;
+//}
+
+
+//RTC::ReturnCode_t RTCActivationTest::onError(RTC::UniqueId /*ec_id*/)
+//{
+//  return RTC::RTC_OK;
+//}
+
+
+//RTC::ReturnCode_t RTCActivationTest::onReset(RTC::UniqueId /*ec_id*/)
+//{
+//  return RTC::RTC_OK;
+//}
+
+
+//RTC::ReturnCode_t RTCActivationTest::onStateUpdate(RTC::UniqueId /*ec_id*/)
+//{
+//  return RTC::RTC_OK;
+//}
+
+
+//RTC::ReturnCode_t RTCActivationTest::onRateChanged(RTC::UniqueId /*ec_id*/)
+//{
+//  return RTC::RTC_OK;
+//}
+
+ConnListener::ReturnCode ConnListener::operator()(RTC::ConnectorInfo& info)
+{
+    std::this_thread::sleep_for(std::chrono::seconds(m_sleeptime));
+    return NO_CHANGE;
+}
+
+
+extern "C"
+{
+ 
+  void RTCActivationTestInit(RTC::Manager* manager)
+  {
+    coil::Properties profile(rtcactivationtest_spec);
+    manager->registerFactory(profile,
+                             RTC::Create<RTCActivationTest>,
+                             RTC::Delete<RTCActivationTest>);
+  }
+  
+}
